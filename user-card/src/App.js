@@ -7,6 +7,7 @@ import './styles.css';
 class App extends React.Component {
     state = {
       users: [],
+      followers: [],
       userName: ''
     };
 
@@ -15,6 +16,11 @@ class App extends React.Component {
     fetch("https://api.github.com/users/bradley-krigbaum")
       .then(res => res.json())
       .then(user => this.setState({ users: user }))
+      .catch(err => console.error(err))
+
+    fetch(`https://api.github.com/users/bradley-krigbaum/followers`)
+      .then(res => res.json())
+      .then(follower => this.setState({ followers: follower }))
       .catch(err => console.error(err))
   }
 
@@ -39,9 +45,22 @@ class App extends React.Component {
       .then(user => this.setState({ users: user }))
       .catch(err => console.error(err))
   };
-  
+
+  handleFetchFollower = e => {
+    e.preventDefault();
+    fetch(`https://api.github.com/users/${this.state.userName}/followers`)
+      .then(res => res.json())
+      .then(follower => this.setState({ followers: follower }))
+      .catch(err => console.error(err))
+  }
+
+  handleUserChanges = e => {
+    this.handleFetchUsers(e)
+    this.handleFetchFollower(e)
+  }
 
   render() {
+    // console.log(this.state.users)
     return (
       <div className='App'>
         <h1>GitHub User</h1>
@@ -54,11 +73,16 @@ class App extends React.Component {
             onChange={this.handleChange}
           />
 
-          <button onClick={this.handleFetchUsers}>Find User</button>
+          <button onClick={(e)=>this.handleUserChanges(e)}>Find User</button>
         </div>
 
         <div>
           <UserCard users={this.state.users} />
+
+          {this.state.followers.map(users => (
+            <UserCard users={users}/>
+          ))}
+
         </div>
 
       </div>
