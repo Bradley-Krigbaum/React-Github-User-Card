@@ -1,11 +1,69 @@
 import React from 'react';
 
-function App() {
-  return (
-    <>
-      <h1>GitHub User Cards</h1>
-    </>
-  );
+import UserCard from "./components/UserCard";
+import './styles.css';
+
+
+class App extends React.Component {
+    state = {
+      users: [],
+      userName: ''
+    };
+
+  componentDidMount() {
+    console.log("bk: App.js: CDM: component mounted");
+    fetch("https://api.github.com/users/bradley-krigbaum")
+      .then(res => res.json())
+      .then(user => this.setState({ users: user }))
+      .catch(err => console.error(err))
+  }
+
+  componentDidUpdate(prevState) {
+    console.log("bk: App.js: CDU: component updated");
+    if (prevState.users !== this.state.users) {
+      // console.log("bk: App.js: CDU: user state has changed");
+      // console.log('CDU: user state: ', this.state.users);
+      // console.log('CDU: user name: ', this.state.userName);
+
+    }
+  }
+
+  handleChange = e => {
+    this.setState({...this.state, userName: e.target.value})
+  }
+
+  handleFetchUsers = e => {
+    e.preventDefault();
+    fetch(`https://api.github.com/users/${this.state.userName}`)
+      .then(res => res.json())
+      .then(user => this.setState({ users: user }))
+      .catch(err => console.error(err))
+  };
+  
+
+  render() {
+    return (
+      <div className='App'>
+        <h1>GitHub User</h1>
+
+        <div className='SearchUsers'>
+          <input
+            type="text"
+            placeholder='Enter Username'
+            value={this.state.userName}
+            onChange={this.handleChange}
+          />
+
+          <button onClick={this.handleFetchUsers}>Find User</button>
+        </div>
+
+        <div>
+          <UserCard users={this.state.users} />
+        </div>
+
+      </div>
+    );
+  }
 }
 
 export default App;
